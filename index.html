@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashlight App</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #333;
+            color: black; /* Initial text color */
+            font-family: Arial, sans-serif;
+            text-align: center;
+            transition: background-color 0.5s, color 0.5s; /* Transition for colors */
+        }
+
+        #flashlight {
+            width: 100px;
+            height: 100px;
+            border: none;
+            border-radius: 50%;
+            background-color: #ffcc00;
+            font-size: 36px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            transition: background-color 0.3s;
+        }
+
+        #flashlight:active {
+            background-color: #ffbb00;
+        }
+
+        .instruction {
+            margin-top: 20px;
+            font-size: 18px;
+            color: black; /* Initial instruction text color */
+            transition: color 0.5s; /* Transition for instruction text color */
+        }
+    </style>
+</head>
+<body>
+    <h1>Flashlight App</h1>
+    <button id="flashlight" aria-label="Toggle Flashlight">
+        <i class="fas fa-lightbulb"></i>
+    </button>
+
+    <p class="instruction">Tap the bulb to toggle the flashlight.</p>
+
+    <script>
+        const flashlightButton = document.getElementById('flashlight');
+        const instructionText = document.querySelector('.instruction');
+        let isOn = false;
+        let stream = null;
+
+        async function toggleFlashlight() {
+            if (isOn) {
+                // Turn off the flashlight
+                flashlightButton.innerHTML = '<i class="fas fa-lightbulb" style="color: white;"></i>';
+                document.body.style.backgroundColor = "#333"; // Return to a dark background
+                document.body.style.color = "black"; // Change all text to black
+                instructionText.style.color = "black"; // Specifically set the instruction text color
+
+                // Stop the camera stream to turn the flashlight off
+                if (stream) {
+                    const tracks = stream.getVideoTracks();
+                    tracks.forEach(track => track.stop());
+                    stream = null;
+                }
+                
+            } else {
+                // Turn on the flashlight
+                flashlightButton.innerHTML = '<i class="fas fa-lightbulb" style="color: yellow;"></i>';
+                document.body.style.backgroundColor = "#ffffff"; // Bright white screen
+                document.body.style.color = "white"; // Change all text to white
+                instructionText.style.color = "white"; // Specifically set the instruction text color
+
+                try {
+                    // Request access to the camera and set up a stream
+                    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+
+                    // Flashlight workaround: use the video stream
+                    const videoTrack = stream.getVideoTracks()[0];
+
+                    // Here you would typically do something with the video stream
+                    // (but activating the actual hardware flashlight isn't possible with JavaScript).
+
+                } catch (err) {
+                    console.error("Error accessing camera: ", err);
+                }
+            }
+            isOn = !isOn;
+        }
+
+        flashlightButton.addEventListener('click', toggleFlashlight);
+    </script>
+</body>
+</html>
